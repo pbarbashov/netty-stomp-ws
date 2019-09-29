@@ -7,9 +7,10 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
-
+@Slf4j
 public class SockJsEncoder extends ChannelOutboundHandlerAdapter {
     private final JsonStringEncoder jsonStringEncoder = BufferRecyclers.getJsonStringEncoder();
     @Override
@@ -21,7 +22,7 @@ public class SockJsEncoder extends ChannelOutboundHandlerAdapter {
         else {
             ByteBuf buf = (ByteBuf) msg;
             String s = buf.toString(StandardCharsets.UTF_8);
-            System.out.println("s2c " + s);
+            log.debug("s2c " + s);
             String sb = "a[" +
                     '"' +
                     escapeSockJsSpecialChars(jsonStringEncoder.quoteAsString(s)) +

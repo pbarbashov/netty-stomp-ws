@@ -4,10 +4,11 @@ import io.netty.handler.codec.AsciiHeadersEncoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.stomp.*;
 import io.netty.util.CharsetUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 public class MyStompSubframeEncoder extends MessageToMessageEncoder<StompSubframe> {
     static final byte CR = 13;
     static final byte LF = 10;

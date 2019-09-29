@@ -2,10 +2,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.stomp.*;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
-
+@Slf4j
 public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame> {
 
     private final ServerRuntime serverRuntime;
@@ -21,7 +22,7 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, StompFrame msg) throws Exception {
         if (StompCommand.CONNECT == msg.command()) {
-            System.out.println("CONNECT received");
+            log.debug("CONNECT received");
             DefaultStompFrame connectedFrame = new DefaultStompFrame(StompCommand.CONNECTED);
             DefaultStompHeaders headers = new DefaultStompHeaders();
             headers.add(StompHeaders.VERSION,"1.2");
@@ -38,14 +39,14 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
                 sessionInfo.setClientHeartBeatMs(clientHeartBeat == 0 || clientDesiredHeartBeat == 0 ? 0 : Math.max(clientHeartBeat,clientDesiredHeartBeat));
                 sessionInfo.setServerHeartBeatMs(serverHeartbeat == 0 || serverDesiredHeartBeat == 0 ? 0 : Math.max(serverHeartbeat, serverDesiredHeartBeat));
                 if (sessionInfo.getClientHeartBeatMs() != 0 || sessionInfo.getServerHeartBeatMs() != 0) {
-                    System.out.println("Registring idle state listener");
+                    log.debug("Registring idle state listener");
                     ctx.pipeline().addBefore("sockjsDecoder", "idleStateHandler",
                             new IdleStateHandler(sessionInfo.getClientHeartBeatMs()*2, sessionInfo.getServerHeartBeatMs(),0, TimeUnit.MILLISECONDS));
                     ctx.pipeline().addAfter("idleStateHandler","heartbeatHandler",new StompHeartBeatHandler());
                 }
             }
             else {
-                System.out.println("No heartbeats received!");
+                log.debug("No heartbeats received!");
             }
         }
         else if (StompCommand.SUBSCRIBE == msg.command()) {
@@ -59,7 +60,7 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
             sessionInfo.unsubscribe(msg.headers().getAsString(StompHeaders.ID));
         }
         else if (StompCommand.SEND == msg.command()) {
-            System.out.println("SEND received " + ctx.channel().attr(ServerRuntime.sessionAttribute).get());
+            log.debug("SEND received " + ctx.channel().attr(ServerRuntime.sessionAttribute).get());
         }
 
     }

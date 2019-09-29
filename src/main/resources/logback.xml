@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds" debug="true">
+    <property name="LOGS_PATH" value="logs"/>
+    <property name="LOGS_FORMAT" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg %n"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOGS_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
+<!--    <logger name="org.springframework.web.socket" level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </logger>-->
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

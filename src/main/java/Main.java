@@ -13,13 +13,14 @@ import io.netty.handler.codec.stomp.*;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.security.*;
 import java.security.cert.CertificateException;
-
+@Slf4j
 public class Main {
 
     private final int port;
@@ -32,7 +33,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         if (args.length != 1) {
-            System.out.println("Args must have port");
+            log.debug("Args must have port");
             return;
         }
         int port = Integer.parseInt(args[0]);
@@ -46,7 +47,7 @@ public class Main {
                 if (session.getChannel().isActive()) {
                     Attribute<String> sessionId = session.getChannel().attr(ServerRuntime.sessionAttribute);
                     session.getChannel().eventLoop().execute(() -> {
-                        System.out.println("Writing to session " + sessionId);
+                        log.debug("Writing to session " + sessionId);
                         StompFrame stompFrame = new DefaultStompFrame(StompCommand.MESSAGE);
                         String destination = "/user/proxy/kafka";
                         stompFrame.headers().add(StompHeaders.DESTINATION, destination);
@@ -84,7 +85,7 @@ public class Main {
                 serverSSLContext.init(keyManagers, trustManagers, null);
 
             } catch (IOException | KeyStoreException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyManagementException e) {
-                e.printStackTrace();
+                log.error("Error on ssl configuration",e);
             }
         }
 

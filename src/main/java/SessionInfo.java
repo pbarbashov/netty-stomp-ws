@@ -1,8 +1,9 @@
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class SessionInfo {
     private Channel channel;
     private BiMap<String, String> subscriptions = HashBiMap.create();
@@ -28,12 +29,12 @@ public class SessionInfo {
     }
 
     public void subscribe(String destination, String subscriptionId) {
-        System.out.println("Subscribe " + subscriptionId);
+        log.debug("Subscribe " + subscriptionId);
         subscriptions.put(destination,subscriptionId);
     }
 
     public void unsubscribe(String subscriptionId) {
-        System.out.println("Unsubscribe " + subscriptionId);
+        log.debug("Unsubscribe " + subscriptionId);
         subscriptions.inverse().remove(subscriptionId);
     }
 

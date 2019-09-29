@@ -5,11 +5,12 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
-
+@Slf4j
 public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final String baseUri;
     private final ServerRuntime serverRuntime;
@@ -24,7 +25,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
-        System.out.println("Req rcv " + request);
+        log.debug("Req rcv " + request);
         if (HttpUtil.is100ContinueExpected((request))) {
             send100Continue(ctx);
         }
@@ -43,7 +44,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         }
         else if (request.uri().matches(baseUri+"/\\d{1,3}/\\w*/websocket")){
             String[] params = request.uri().split("/", 5);
-            System.out.println("Protocol switch " + Arrays.toString(params));
+            log.debug("Protocol switch " + Arrays.toString(params));
             serverRuntime.addSessionInfo(params[3],new SessionInfo(ctx.channel()));
             ctx.channel().attr(ServerRuntime.sessionAttribute).set(params[3]);
             ChannelFuture closeFuture = ctx.channel().closeFuture();
@@ -61,7 +62,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
-        cause.printStackTrace();
+        log.error("Error in handler",cause);
         ctx.close();
     }
 
