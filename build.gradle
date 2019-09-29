@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'test'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.netty:netty-all:4.1.41.Final'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.10'
+    implementation 'com.google.guava:guava:28.1-jre'
+}
