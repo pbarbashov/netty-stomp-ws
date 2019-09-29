@@ -65,6 +65,7 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
         }
         else if (StompCommand.SEND == msg.command()) {
             log.debug("SEND received " + ctx.channel().attr(ServerRuntime.sessionAttribute).get());
+            ctx.fireChannelRead(msg.retain());
         }
 
     }

@@ -13,6 +13,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.stomp.StompSubframeAggregator;
 import io.netty.handler.codec.stomp.StompSubframeDecoder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 import ru.server.ServerRuntime;
 import ru.handler.*;
@@ -26,14 +28,12 @@ import java.security.*;
 import java.security.cert.CertificateException;
 @Slf4j
 public class Main {
-
     private final int port;
     private final ServerRuntime serverRuntime = new ServerRuntime();
 
-    public Main(int port) {
+    private Main(int port) {
         this.port = port;
     }
-
 
     public static void main(String[] args) throws InterruptedException {
         if (args.length != 1) {
@@ -43,26 +43,6 @@ public class Main {
         int port = Integer.parseInt(args[0]);
         new Main(port).start();
     }
-
-    /* ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(() -> {
-            Collection<ru.server.SessionInfo> sessions = serverRuntime.sessions();
-            for (ru.server.SessionInfo session : sessions) {
-                if (session.getChannel().isActive()) {
-                    Attribute<String> sessionId = session.getChannel().attr(ru.server.ServerRuntime.sessionAttribute);
-                    session.getChannel().eventLoop().execute(() -> {
-                        log.debug("Writing to session " + sessionId);
-                        StompFrame stompFrame = new DefaultStompFrame(StompCommand.MESSAGE);
-                        String destination = "/user/proxy/kafka";
-                        stompFrame.headers().add(StompHeaders.DESTINATION, destination);
-                        stompFrame.headers().add(StompHeaders.CONTENT_TYPE,"application/json;charset=UTF-8");
-                        stompFrame.headers().add(StompHeaders.SUBSCRIPTION, serverRuntime.searchSubscriptionId(sessionId.get(),destination));
-                        stompFrame.content().writeCharSequence("{\"service\":1}",StandardCharsets.UTF_8);
-                        session.getChannel().writeAndFlush(stompFrame);
-                    });
-                }
-            }
-        },5,5, TimeUnit.SECONDS);*/
 
     private void start() throws InterruptedException {
         String keyStorePath = System.getProperty("javax.net.ssl.keyStore");
@@ -92,13 +72,9 @@ public class Main {
                 log.error("Error on ssl configuration",e);
             }
         }
-
-
-
-        // SslContext sslContext = SslContextBuilder.forServer().build();
-
         final EventLoopGroup acceptLoopGroup = new NioEventLoopGroup(1);
-        final EventLoopGroup rwLoopGroup = new NioEventLoopGroup(2);
+        final EventExecutorGroup stompGroup = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors());
+        final EventLoopGroup rwLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
         try {
             final ServerBootstrap b = new ServerBootstrap();
             SSLContext finalServerSSLContext = serverSSLContext;
@@ -123,16 +99,15 @@ public class Main {
                             ch.pipeline().addLast(new StompSubframeDecoder());
                             ch.pipeline().addLast(new StompSubframeAggregator(10 * 1024 * 1024));
                             ch.pipeline().addLast(new MyStompSubframeEncoder());
-                            ch.pipeline().addLast("stompHandler", new StompMessageHandler(serverRuntime, 0, 30000));
+                            ch.pipeline().addLast(stompGroup,"stompHandler", new StompMessageHandler(serverRuntime, 0, 30000));
+                            ch.pipeline().addLast(new AfterSlowHandler(serverRuntime));
                         }
                     });
-
             ChannelFuture sync = b.bind().sync();
             sync.channel().closeFuture().sync();
         } finally {
             acceptLoopGroup.shutdownGracefully().sync();
             rwLoopGroup.shutdownGracefully().sync();
         }
-
     }
 }
