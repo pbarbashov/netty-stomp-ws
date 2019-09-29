@@ -1,3 +1,5 @@
+package ru.handler;
+
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import io.netty.buffer.ByteBuf;

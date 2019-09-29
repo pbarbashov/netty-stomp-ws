@@ -1,8 +1,12 @@
+package ru.handler;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.stomp.*;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
+import ru.server.ServerRuntime;
+import ru.server.SessionInfo;
 
 import java.util.concurrent.TimeUnit;
 

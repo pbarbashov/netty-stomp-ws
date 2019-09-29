@@ -1,3 +1,5 @@
+package ru.handler;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -6,6 +8,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
+import ru.server.ServerRuntime;
+import ru.server.SessionInfo;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -62,7 +66,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
-        log.error("Error in handler",cause);
+        log.error("Error in ru.handler",cause);
         ctx.close();
     }
 

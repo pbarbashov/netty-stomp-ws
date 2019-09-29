@@ -1,4 +1,7 @@
+package ru.handler;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.handler.HttpRequestHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,7 +19,7 @@ public class SockJsDecoder extends SimpleChannelInboundHandler<TextWebSocketFram
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            log.debug("Handshake done. Removing handler");
+            log.debug("Handshake done. Removing ru.handler");
             ctx.pipeline().remove(HttpRequestHandler.class);
         } else {
             ctx.writeAndFlush(new TextWebSocketFrame("o"));

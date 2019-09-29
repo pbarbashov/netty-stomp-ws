@@ -1,3 +1,5 @@
+package ru.server;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import io.netty.channel.Channel;
@@ -60,7 +62,7 @@ public class SessionInfo {
 
     @Override
     public String toString() {
-        return "SessionInfo{" +
+        return "ru.server.SessionInfo{" +
                 "channel=" + channel +
                 ", subscriptions=" + subscriptions +
                 ", clientHeartBeatMs=" + clientHeartBeatMs +

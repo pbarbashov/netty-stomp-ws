@@ -1,3 +1,5 @@
+package ru.server;
+
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 

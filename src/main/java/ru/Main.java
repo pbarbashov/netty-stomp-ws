@@ -1,22 +1,26 @@
+package ru;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.stomp.*;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.codec.stomp.StompSubframeAggregator;
+import io.netty.handler.codec.stomp.StompSubframeDecoder;
 import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
+import ru.server.ServerRuntime;
+import ru.handler.*;
 
 import javax.net.ssl.*;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -42,10 +46,10 @@ public class Main {
 
     /* ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
-            Collection<SessionInfo> sessions = serverRuntime.sessions();
-            for (SessionInfo session : sessions) {
+            Collection<ru.server.SessionInfo> sessions = serverRuntime.sessions();
+            for (ru.server.SessionInfo session : sessions) {
                 if (session.getChannel().isActive()) {
-                    Attribute<String> sessionId = session.getChannel().attr(ServerRuntime.sessionAttribute);
+                    Attribute<String> sessionId = session.getChannel().attr(ru.server.ServerRuntime.sessionAttribute);
                     session.getChannel().eventLoop().execute(() -> {
                         log.debug("Writing to session " + sessionId);
                         StompFrame stompFrame = new DefaultStompFrame(StompCommand.MESSAGE);
