@@ -36,10 +36,11 @@ public class MyStompSubframeEncoder extends MessageToMessageEncoder<StompSubfram
 
     private static ByteBuf encodeContent(StompContentSubframe content, ChannelHandlerContext ctx) {
         if (content instanceof LastStompContentSubframe) {
-            ByteBuf buf = ctx.alloc().buffer(content.content().readableBytes() + 1);
-            buf.writeBytes(content.content());
-            buf.writeByte(NUL);
-            return buf;
+            //ByteBuf buf = ctx.alloc().buffer(content.content().readableBytes() + 1);
+            //buf.writeBytes(content.content());
+            //buf.writeByte(NUL);
+            content.content().writeByte(NUL);
+            return content.content().retain();
         } else {
             return content.content().retain();
         }

@@ -24,7 +24,7 @@ public class SockJsEncoder extends ChannelOutboundHandlerAdapter {
         else {
             ByteBuf buf = (ByteBuf) msg;
             String s = buf.toString(StandardCharsets.UTF_8);
-            log.debug("s2c " + s);
+            log.trace("s2c " + s);
             String sb = "a[" +
                     '"' +
                     escapeSockJsSpecialChars(jsonStringEncoder.quoteAsString(s)) +

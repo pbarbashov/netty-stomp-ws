@@ -16,10 +16,10 @@ public class StompHeartBeatHandler extends ChannelDuplexHandler {
             IdleStateEvent e = (IdleStateEvent) evt;
             String sessionId = ctx.channel().attr(ServerRuntime.sessionAttribute).get();
             if (e.state() == IdleState.READER_IDLE) {
-                log.debug("Reader idle in session " + sessionId + ". Closing channel!");
+                log.trace("Reader idle in session " + sessionId + ". Closing channel!");
                 ctx.close();
             } else if (e.state() == IdleState.WRITER_IDLE) {
-                log.debug("Writer idle in session " + sessionId + ". Sending ping to channel!");
+                log.trace("Writer idle in session " + sessionId + ". Sending ping to channel!");
                 ctx.writeAndFlush(new TextWebSocketFrame("h[\"\\n]\""));
             }
         }

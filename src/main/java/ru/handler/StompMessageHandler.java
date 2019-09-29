@@ -43,14 +43,14 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
                 sessionInfo.setClientHeartBeatMs(clientHeartBeat == 0 || clientDesiredHeartBeat == 0 ? 0 : Math.max(clientHeartBeat,clientDesiredHeartBeat));
                 sessionInfo.setServerHeartBeatMs(serverHeartbeat == 0 || serverDesiredHeartBeat == 0 ? 0 : Math.max(serverHeartbeat, serverDesiredHeartBeat));
                 if (sessionInfo.getClientHeartBeatMs() != 0 || sessionInfo.getServerHeartBeatMs() != 0) {
-                    log.debug("Registring idle state listener");
+                    log.trace("Registring idle state listener");
                     ctx.pipeline().addBefore("sockjsDecoder", "idleStateHandler",
                             new IdleStateHandler(sessionInfo.getClientHeartBeatMs()*2, sessionInfo.getServerHeartBeatMs(),0, TimeUnit.MILLISECONDS));
                     ctx.pipeline().addAfter("idleStateHandler","heartbeatHandler",new StompHeartBeatHandler());
                 }
             }
             else {
-                log.debug("No heartbeats received!");
+                log.warn("No heartbeats received!");
             }
         }
         else if (StompCommand.SUBSCRIBE == msg.command()) {
@@ -64,7 +64,7 @@ public class StompMessageHandler extends SimpleChannelInboundHandler<StompFrame>
             sessionInfo.unsubscribe(msg.headers().getAsString(StompHeaders.ID));
         }
         else if (StompCommand.SEND == msg.command()) {
-            log.debug("SEND received " + ctx.channel().attr(ServerRuntime.sessionAttribute).get());
+            log.trace("SEND received " + ctx.channel().attr(ServerRuntime.sessionAttribute).get());
             ctx.fireChannelRead(msg.retain());
         }
 

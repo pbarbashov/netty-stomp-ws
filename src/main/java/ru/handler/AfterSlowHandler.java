@@ -22,7 +22,7 @@ public class AfterSlowHandler extends SimpleChannelInboundHandler<StompFrame> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, StompFrame msg) throws Exception {
-        log.info("After slow");
+        log.trace("After slow");
         Attribute<String> sessionId = ctx.channel().attr(ru.server.ServerRuntime.sessionAttribute);
         StompFrame stompFrame = new DefaultStompFrame(StompCommand.MESSAGE);
         String destination = "/user/proxy/kafka";

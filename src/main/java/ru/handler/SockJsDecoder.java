@@ -19,7 +19,7 @@ public class SockJsDecoder extends SimpleChannelInboundHandler<TextWebSocketFram
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            log.debug("Handshake done. Removing ru.handler");
+            log.trace("Handshake done. Removing ru.handler");
             ctx.pipeline().remove(HttpRequestHandler.class);
         } else {
             ctx.writeAndFlush(new TextWebSocketFrame("o"));
@@ -31,7 +31,7 @@ public class SockJsDecoder extends SimpleChannelInboundHandler<TextWebSocketFram
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         String text = msg.text();
         String[] content = objectMapper.readValue(text, String[].class);
-        log.debug("c2s " + content[0]);
+        log.trace("c2s " + content[0]);
         ByteBuf buf = Unpooled.wrappedBuffer(content[0].getBytes(StandardCharsets.UTF_8));
         ctx.fireChannelRead(buf);
     }
