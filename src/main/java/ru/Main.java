@@ -14,8 +14,10 @@ import io.netty.handler.codec.stomp.StompSubframeAggregator;
 import io.netty.handler.codec.stomp.StompSubframeDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.AntPathMatcher;
 import ru.server.ServerRuntime;
 import ru.handler.*;
 
@@ -26,6 +28,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.security.*;
 import java.security.cert.CertificateException;
+
 @Slf4j
 public class Main {
     private final int port;
@@ -72,20 +75,20 @@ public class Main {
                 log.error("Error on ssl configuration",e);
             }
         }
-        final EventLoopGroup acceptLoopGroup = new NioEventLoopGroup(1);
-        final EventExecutorGroup stompGroup = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors());
-        final EventLoopGroup rwLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors());
+        final EventLoopGroup acceptLoopGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("acceptThread"));
+        final EventExecutorGroup stompGroup = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors(), new DefaultThreadFactory("stompHandlerThread"));
+        final EventLoopGroup rwLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),new DefaultThreadFactory("rwWorkerThread"));
         try {
             final ServerBootstrap b = new ServerBootstrap();
             SSLContext finalServerSSLContext = serverSSLContext;
             b.group(acceptLoopGroup, rwLoopGroup)
-                    .localAddress(new InetSocketAddress("pbarb-lap",port))
+                    .localAddress(new InetSocketAddress(port))
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             if (finalServerSSLContext != null) {
-                                SSLEngine sslEngine = finalServerSSLContext.createSSLEngine("pbarb-lap",port);
+                                SSLEngine sslEngine = finalServerSSLContext.createSSLEngine();
                                 sslEngine.setUseClientMode(false);
                                 sslEngine.setNeedClientAuth(false);
                                 ch.pipeline().addLast(new SslHandler(sslEngine));
